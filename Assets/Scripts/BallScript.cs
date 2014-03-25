@@ -3,10 +3,15 @@ using System.Collections;
 
 public class BallScript : MonoBehaviour {
 
-	const float UP_FORCE = 1f;
+	const float UP_FORCE = 0.6f;
 	const float BOUNCE_FORCE = 1.8f;
+	const float BOUNCE_LISTENING_RESET_HEIGHT = 1.4f;
+	bool INCREMENT_OKAY = true;
 
-	public GameObject wall_x1, wall_x2, wall_z1, wall_z2;
+	public int bounce = 0;
+	public bool gameMode = false;
+	public string hitSource = "yellow";
+
 
 	// Use this for initialization
 	void Start () {
@@ -15,24 +20,44 @@ public class BallScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (gameMode == true) game();		 
 	}
 
-	void OnCollisionEnter(Collision collision) {
-		rigidbody.AddForce(Vector3.up * UP_FORCE, ForceMode.VelocityChange);
-		if (Input.GetKey(KeyCode.P)) rigidbody.AddForce(Vector3.up * 3f * UP_FORCE, ForceMode.VelocityChange);
+	void game() {
+		if (bounce >= 2) {
+			gameMode = false;
+			return;
+		}
 
-		if (collision.contacts[0].thisCollider == wall_x1.collider) {
-			rigidbody.AddForce(Vector3.forward * BOUNCE_FORCE, ForceMode.VelocityChange);
+		if (INCREMENT_OKAY && transform.position.y < BOUNCE_LISTENING_RESET_HEIGHT && rigidbody.velocity.y < 0) {
+			INCREMENT_OKAY = false;
+			++bounce;
 		}
-		else if (collision.contacts[0].thisCollider == wall_x2.collider) {
-			rigidbody.AddForce(-Vector3.forward * BOUNCE_FORCE, ForceMode.VelocityChange);
+
+		if (!INCREMENT_OKAY && transform.position.y > BOUNCE_LISTENING_RESET_HEIGHT) {
+			INCREMENT_OKAY = true;
 		}
-		else if (collision.contacts[0].thisCollider == wall_z1.collider) {
-			rigidbody.AddForce(Vector3.right * BOUNCE_FORCE, ForceMode.VelocityChange);
-		}
-		else if (collision.contacts[0].thisCollider == wall_z2.collider) {
-			rigidbody.AddForce(-Vector3.right * BOUNCE_FORCE, ForceMode.VelocityChange);
-		}
+	}
+
+	// Called whenever a collision happens. collision will contain an array of things that the ball collider
+	void OnCollisionEnter(Collision collision) {
+
+		rigidbody.AddForce(Vector3.up * UP_FORCE, ForceMode.VelocityChange);	
 		
+		foreach (ContactPoint contacts in collision.contacts) {
+			if (contacts.otherCollider.GetType().ToString() == "UnityEngine.CapsuleCollider") {
+				hitSource = source(contacts.otherCollider.transform.position.x, contacts.otherCollider.transform.position.z);
+				bounce = 0;
+				return;
+			}
+		}	
+	}
+
+	string source(float x, float z) {
+		if (x > 0 && z > 0) return "red";
+		if (x <= 0 && z <= 0) return "yellow";
+		if (x > 0 && z <= 0) return "blue";
+		if (x <= 0 && z > 0) return "green";
+		return "none";
 	}
 }
