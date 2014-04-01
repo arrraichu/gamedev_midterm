@@ -47,18 +47,23 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\BallScript.cs" />
+     <Compile Include="Assets\Scripts\ChangeScreenScript.cs" />
      <Compile Include="Assets\Scripts\ComputerScript.cs" />
+     <Compile Include="Assets\Scripts\Name.cs" />
      <Compile Include="Assets\Scripts\PlayerOneScript.cs" />
      <Compile Include="Assets\Scripts\PlayerTwoScript.cs" />
+     <Compile Include="Assets\Scripts\RuleScript.cs" />
      <Compile Include="Assets\Scripts\Rulees.cs" />
+     <Compile Include="Assets\Scripts\TextRollingScript.cs" />
      <Compile Include="Assets\Scripts\messageBox.cs" />
      <Compile Include="Assets\Scripts\points.cs" />
+     <Compile Include="Assets\Scripts\randomcoloring.cs" />
      <Compile Include="Assets\Scripts\readFile.cs" />
      <Compile Include="Assets\Scripts\scores.cs" />
-     <Compile Include="Assets\dump\ChangeScreenScript.cs" />
      <Compile Include="Assets\dump\HighScoreScript.cs" />
      <Compile Include="Assets\dump\MouseScript.cs" />
      <Compile Include="Assets\dump\PlayerScript.cs" />
+     <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

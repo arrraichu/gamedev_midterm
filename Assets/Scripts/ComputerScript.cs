@@ -4,6 +4,7 @@ using System.Collections;
 public class ComputerScript : MonoBehaviour {
 
 	public GameObject gameball;
+	public GUIText texture;
 	public string inColor;
 	int computer = 0;
 
@@ -13,9 +14,18 @@ public class ComputerScript : MonoBehaviour {
 	const float GO_BACK_SPEED = 80f;
 	const float DISTANCE_THRESH = 1.6f;
 
+	const float STARTING_FORWARD_FORCE = 6f;
+	const float STARTING_FORWARD_AMOUNT = 3.2f;
+	const float UP_FORCE = 0.2f;
+
+	bool increased_score = false;
+
 	// starting x and z positions of the computer
 	float STARTING_X;
 	float STARTING_Z;
+
+	float time_elapsed = 0f;
+	const float WAITING_TIME = 5f;
 
 	// Use this for initialization
 	void Start () {
@@ -38,6 +48,24 @@ public class ComputerScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (!gameball.GetComponent<BallScript>().gameMode) {
+			if (gameball.GetComponent<BallScript>().hitSource == inColor) {
+				if (increased_score == false) {
+					increased_score = true;
+					int score = int.Parse(texture.text) + 1;
+					texture.text = "" + score;
+				}
+				startTimer();
+				returnToLocation();
+				return;
+			}
+			else {
+				returnToLocation();
+				return;
+			}
+		}
+
+
 		if (expectedLanding()) {
 			if (!inMyBox(transform.position.x, transform.position.z)) {
 				returnToLocation();
@@ -125,5 +153,35 @@ public class ComputerScript : MonoBehaviour {
 
 		rigidbody.velocity = Vector3.zero;
 		rigidbody.AddForce(goback * GO_BACK_SPEED, ForceMode.Force);
+	}
+
+	void startTimer() {
+		time_elapsed += Time.deltaTime;
+
+		if (time_elapsed > WAITING_TIME) {
+			time_elapsed = 0f;
+
+			// determine rotation by the computer panel color
+			float rotation_angle = 0;
+			if (inColor ==  "blue") {
+				rotation_angle = 270f;
+			}
+			else if (inColor == "green") {
+				rotation_angle = 90f;
+			}
+			rotation_angle += Random.Range(0f, 90f);
+			rotation_angle *= Mathf.PI / 180;
+
+			Vector3 forward_force = new Vector3(Mathf.Sin(rotation_angle), UP_FORCE, Mathf.Cos(rotation_angle));
+
+			gameball.transform.position = transform.position + (forward_force * STARTING_FORWARD_AMOUNT);
+
+			gameball.rigidbody.active = true;
+			gameball.renderer.enabled = true;
+			gameball.GetComponent<BallScript>().gameMode = true;
+			gameball.GetComponent<BallScript>().bounce = 0;
+
+			gameball.rigidbody.AddForce(forward_force * STARTING_FORWARD_FORCE, ForceMode.VelocityChange);
+		}
 	}
 }

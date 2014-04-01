@@ -2,32 +2,37 @@
 using System.Collections;
 
 public class messageBox : MonoBehaviour {
-	public string stringToEdit = "Message displays here :)";
+	public string stringToEdit = null;
+
+	public string buffer = null;
+	public float time_elapsed = 0f;
+	const float TOTAL_STAY_TIME = 5f;
 
 	// Use this for initialization
 	void Start () {
 	
 	}
 	void OnGUI() {
-		stringToEdit = GUI.TextArea(new Rect(758, 300, 200, 300), stringToEdit, 200);
+		if (buffer != null) {
+			GUI.TextArea(new Rect(758, 300, 200, 300), buffer, 500);
+		}
+		else  {
+			GUI.TextArea(new Rect(758, 300, 200, 300), "", 500);
+		}		
 	}
 
 	// Update is called once per frame
 	void Update () {
-		if( Input.GetKey (KeyCode.Alpha1)) {
-			stringToEdit = "You have to be in \nchange of two players, \nswitch to a different \nplayer for the next hitting. \nUse key Shift to switch.";
+		time_elapsed += Time.deltaTime;
+
+		if (stringToEdit != null) {
+			buffer = stringToEdit;
+			time_elapsed = 0f;
 		}
-		if( Input.GetKey (KeyCode.Alpha2)) {
-			stringToEdit = "Call the number of the \nplayer you going to hit the \nball to before hitting the \nball.";
-		}
-		if( Input.GetKey (KeyCode.Alpha3)) {
-			stringToEdit = "You team up with another \nplayer, and hit the ball to \nthe opponents' team.";
-		}
-		if( Input.GetKey (KeyCode.Alpha4)) {
-			stringToEdit = "Gravity changed, hit the \nball in a different way.";
-		}
-		if (Input.GetKey (KeyCode.Alpha0)) {
-			stringToEdit = "Message Displays here :)";
+		else if (time_elapsed > TOTAL_STAY_TIME) {
+			stringToEdit = null;
+			buffer = null;
+			time_elapsed = 0f;
 		}
 	
 	}

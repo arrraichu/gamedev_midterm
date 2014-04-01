@@ -3,14 +3,15 @@ using System.Collections;
 
 public class BallScript : MonoBehaviour {
 
-	const float UP_FORCE = 0.6f;
+	const float UP_FORCE = 0.8f;
 	const float BOUNCE_FORCE = 1.8f;
 	const float BOUNCE_LISTENING_RESET_HEIGHT = 1.4f;
-	bool INCREMENT_OKAY = true;
 
 	public int bounce = 0;
 	public bool gameMode = false;
-	public string hitSource = "yellow";
+	public string hitSource;
+
+	const float HALF_WIDTH = 10f;
 
 
 	// Use this for initialization
@@ -20,22 +21,19 @@ public class BallScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (gameMode == true) game();		 
+		if (gameMode == true) game();
+
+		else {
+			rigidbody.active = false;
+			renderer.enabled = false;
+		}	 
 	}
 
 	void game() {
 		if (bounce >= 2) {
 			gameMode = false;
+			bounce = 0;
 			return;
-		}
-
-		if (INCREMENT_OKAY && transform.position.y < BOUNCE_LISTENING_RESET_HEIGHT && rigidbody.velocity.y < 0) {
-			INCREMENT_OKAY = false;
-			++bounce;
-		}
-
-		if (!INCREMENT_OKAY && transform.position.y > BOUNCE_LISTENING_RESET_HEIGHT) {
-			INCREMENT_OKAY = true;
 		}
 	}
 
@@ -45,19 +43,27 @@ public class BallScript : MonoBehaviour {
 		rigidbody.AddForce(Vector3.up * UP_FORCE, ForceMode.VelocityChange);	
 		
 		foreach (ContactPoint contacts in collision.contacts) {
-			if (contacts.otherCollider.GetType().ToString() == "UnityEngine.CapsuleCollider") {
-				hitSource = source(contacts.otherCollider.transform.position.x, contacts.otherCollider.transform.position.z);
+			if (gameMode && contacts.otherCollider.name == "Floor") {
+				++bounce;
+				return;
+			}
+
+			string contact_name = contacts.otherCollider.name;
+			if (contact_name == "Player 1" || contact_name == "Player 2" || contact_name == "Computer 1" || contact_name == "Computer 2") {
+				hitSource = source(contact_name);
 				bounce = 0;
 				return;
 			}
+
+			Debug.Log(contacts.otherCollider.name);
 		}	
 	}
 
-	string source(float x, float z) {
-		if (x > 0 && z > 0) return "red";
-		if (x <= 0 && z <= 0) return "yellow";
-		if (x > 0 && z <= 0) return "blue";
-		if (x <= 0 && z > 0) return "green";
+	string source(string input) {
+		if (input == "Player 1") return "yellow";
+		if (input == "Player 2") return "red";
+		if (input == "Computer 1") return "green";
+		if (input == "Computer 2") return "blue";
 		return "none";
 	}
 }
